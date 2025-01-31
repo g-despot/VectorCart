@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 public class VectorCartApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(VectorCartApplication.class, args);
 	}
-
 }
