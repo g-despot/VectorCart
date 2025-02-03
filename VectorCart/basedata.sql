@@ -36,7 +36,7 @@ UNIQUE (username)
 
 INSERT INTO USER(name, address, email, password, role, username) VALUES
                                                                    ('John Doe', '66 Sycamore Drive, Staten Island, New York 10314', 'john@doe.com', 'john', 'ROLE_ADMIN', 'john'),
-                                                                   ('Jane Doe', '3865 Crowfield Road, Phoenix, Arizona 85003', 'anna@doe.com', 'jane', 'ROLE_NORMAL', 'anna');
+                                                                   ('Jane Doe', '3865 Crowfield Road, Phoenix, Arizona 85003', 'anna@doe.com', 'jane', 'ROLE_NORMAL', 'jane');
 
 CREATE TABLE IF NOT EXISTS PRODUCT(
 product_id  int unique key not null auto_increment primary key,

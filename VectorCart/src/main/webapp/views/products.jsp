@@ -47,7 +47,6 @@
                     <th scope="col">Preview</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
-                    <th scope="col">Weight</th>
                     <th scope="col">Description</th>
                     <th scope="col">Delete</th>
                     <th scope="col">Update</th>
@@ -62,7 +61,6 @@
                         <td><img src="${product.image}" height="100" width="100"></td>
                         <td>${product.quantity}</td>
                         <td>${product.price}</td>
-                        <td>${product.weight}</td>
                         <td>${product.description}</td>
                         <td>
                             <form action="products/delete" method="get">

@@ -1,5 +1,7 @@
 package com.VectorCartProject.controller;
 
+import com.VectorCartProject.WeaviateConfiguration;
+import com.VectorCartProject.WeaviateSingleton;
 import com.VectorCartProject.models.Product;
 import com.VectorCartProject.models.User;
 
@@ -8,6 +10,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.weaviate.client.v1.graphql.model.GraphQLResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -170,20 +173,15 @@ public class UserController {
     }
 
     @GetMapping("search")
-    public ModelAndView getSearch() {
+    public ModelAndView getSearchWithQuery(@RequestParam("searchQuery") String searchQuery) {
         ModelAndView mView = new ModelAndView("search");
+        if(!searchQuery.isEmpty()) {
+            System.out.println("searchQuery: " + searchQuery);
+            WeaviateClient client = WeaviateSingleton.getInstance().getClient();
 
-        Config config = new Config("http", "localhost:8080");
-        WeaviateClient client = new WeaviateClient(config);
-        Result<Meta> meta = client.misc().metaGetter().run();
-        if (meta.getError() == null) {
-            System.out.printf("meta.hostname: %s\n", meta.getResult().getHostname());
-            System.out.printf("meta.version: %s\n", meta.getResult().getVersion());
-            System.out.printf("meta.modules: %s\n", meta.getResult().getModules());
-        } else {
-            System.out.printf("Error: %s\n", meta.getError().getMessages());
+            Result<GraphQLResponse> results = WeaviateSingleton.getInstance().nearTextSearch("Products", searchQuery);
+            System.out.println(results);
         }
-
         List<Product> products = this.productService.getProducts();
 
         if (products.isEmpty()) {

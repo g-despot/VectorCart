@@ -5,6 +5,11 @@ import com.VectorCartProject.services.productService;
 import com.VectorCartProject.services.userService;
 import com.google.gson.GsonBuilder;
 import io.weaviate.client.v1.data.model.WeaviateObject;
+import io.weaviate.client.v1.graphql.model.GraphQLResponse;
+import io.weaviate.client.v1.graphql.query.argument.NearTextArgument;
+import io.weaviate.client.v1.graphql.query.builder.GetBuilder;
+import io.weaviate.client.v1.graphql.query.fields.Field;
+import io.weaviate.client.v1.graphql.query.fields.Fields;
 import io.weaviate.client.v1.schema.model.DataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.weaviate.client.Config;
 import io.weaviate.client.WeaviateClient;
@@ -34,8 +40,9 @@ public class WeaviateConfiguration implements CommandLineRunner {
     @Autowired
     public WeaviateConfiguration() {
         this.productService = new productService();
-        Config config = new Config("http", "localhost:8080");
-        client = new WeaviateClient(config);
+
+        client = WeaviateSingleton.getInstance().getClient();
+
         Result<Meta> meta = client.misc().metaGetter().run();
         if (meta.getError() == null) {
             System.out.printf("meta.hostname: %s\n", meta.getResult().getHostname());
@@ -48,8 +55,8 @@ public class WeaviateConfiguration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        this.createCollection();
-        this.populateWeaviate();
+        //this.createCollection();
+        //this.populateWeaviate();
     }
 
     public boolean createCollection() {
@@ -81,6 +88,7 @@ public class WeaviateConfiguration implements CommandLineRunner {
         List<Product> products = this.productService.getProducts();
         List<Result<WeaviateObject>> results = new ArrayList<>();
         for (Product product : products) {
+            System.out.println("Product: " + product.getName());
             results.add(client.data().creator()
                     .withClassName(className)
                     .withProperties(new HashMap<String, Object>() {{
@@ -89,10 +97,13 @@ public class WeaviateConfiguration implements CommandLineRunner {
                     }})
                     .run());
         }
-        for(Result<WeaviateObject> result:results){
+        /*for(Result<WeaviateObject> result:results){
             String json = new GsonBuilder().setPrettyPrinting().create().toJson(result.getResult());
             System.out.println(json);
-        }
+        }*/
         return true;
     }
+
+
+
 }
