@@ -3,6 +3,7 @@ package com.VectorCartProject.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.VectorCartProject.models.Category;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.weaviate.client.base.Result;
@@ -11,63 +12,70 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.VectorCartProject.dao.productDao;
+import com.VectorCartProject.dao.categoryDao;
 import com.VectorCartProject.models.Product;
 
 @Service
 public class productService {
-	@Autowired
-	private productDao productDao;
-	
-	public List<Product> getProducts(){
-		return this.productDao.getProducts();
-	}
-	
-	public Product addProduct(Product product) {
-		return this.productDao.addProduct(product);
-	}
-	
-	public Product getProduct(int id) {
-		return this.productDao.getProduct(id);
-	}
+    @Autowired
+    private productDao productDao;
+    @Autowired
+    private categoryDao categoryDao;
 
-	public Product updateProduct(int id,Product product){
-		product.setId(id);
-		return this.productDao.updateProduct(product);
-	}
-	public boolean deleteProduct(int id) {
-		return this.productDao.deletProduct(id);
-	}
+    public List<Product> getProducts() {
+        return this.productDao.getProducts();
+    }
 
-	public List<Product> parseGraphQLResponse(Result<GraphQLResponse> result) {
-		ObjectMapper objectMapper = new ObjectMapper();
+    public Product addProduct(Product product) {
+        return this.productDao.addProduct(product);
+    }
 
-		List<Product> productList = new ArrayList<>();
+    public Product getProduct(int id) {
+        return this.productDao.getProduct(id);
+    }
 
-		try {
-			GraphQLResponse graphQLResponse = result.getResult();
-// Convert the result to JsonNode if it's an object
-			JsonNode productsNode = objectMapper.valueToTree(graphQLResponse.getData());  // Converts Object to JsonNode
+    public Product updateProduct(int id, Product product) {
+        product.setId(id);
+        return this.productDao.updateProduct(product);
+    }
 
-			// Get the "Products" from GraphQLResponse (parse as JSON)
-			JsonNode productsArrayNode = productsNode.at("/Get/Products");
-			if (productsArrayNode.isArray()) {
-				for (JsonNode productNode : productsArrayNode) {
-					// Extract name and description directly from the JSON node
-					String name = productNode.get("name").asText();
-					String description = productNode.get("description").asText();
+    public boolean deleteProduct(int id) {
+        return this.productDao.deletProduct(id);
+    }
 
-					// Create and populate Product object
-					Product product = new Product();
-					product.setName(name);
-					product.setDescription(description);
+    public List<Product> getProductsFromResult(Result<GraphQLResponse> result) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Product> productList = new ArrayList<>();
 
-					productList.add(product);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            GraphQLResponse graphQLResponse = result.getResult();
+            JsonNode productsNode = objectMapper.valueToTree(graphQLResponse.getData());
+            JsonNode productsArrayNode = productsNode.at("/Get/Products");
+            if (productsArrayNode.isArray()) {
+                for (JsonNode productNode : productsArrayNode) {
+                    int productId = productNode.get("productId").asInt();
+                    productList.add(this.productDao.getProduct(productId));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return productList;
+    }
 
-		return productList;
-	}
+    public String getRagGroupedFromResult(Result<GraphQLResponse> result) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String groupedResult = "";
+
+        try {
+            GraphQLResponse graphQLResponse = result.getResult();
+            JsonNode productsNode = objectMapper.valueToTree(graphQLResponse.getData());
+            JsonNode generativeNode = productsNode.at("/Get/Products/0/_additional/generate");
+
+            groupedResult = generativeNode.get("groupedResult").asText();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return groupedResult;
+    }
 }

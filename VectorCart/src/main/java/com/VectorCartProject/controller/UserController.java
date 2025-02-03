@@ -1,6 +1,6 @@
 package com.VectorCartProject.controller;
 
-import com.VectorCartProject.WeaviateHelper;
+import com.VectorCartProject.services.WeaviateService;
 import com.VectorCartProject.models.Product;
 import com.VectorCartProject.models.User;
 
@@ -19,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.VectorCartProject.services.userService;
 import com.VectorCartProject.services.productService;
 
-import io.weaviate.client.WeaviateClient;
 import io.weaviate.client.base.Result;
 
 @Controller
@@ -109,8 +108,9 @@ public class UserController {
 
         if (!searchQuery.isEmpty()) {
             System.out.println("searchQuery: " + searchQuery);
-            Result<GraphQLResponse> results = WeaviateHelper.getInstance().nearTextSearch("Products", searchQuery);
-            products = productService.parseGraphQLResponse(results);
+            Result<GraphQLResponse> results = WeaviateService.getInstance().nearTextSearch("Products", searchQuery);
+            System.out.println("Raw response: " + results);
+            products = productService.getProductsFromResult(results);
 
             for (Product product : products) {
                 System.out.println(product.getName() + " - " + product.getDescription());
@@ -123,6 +123,38 @@ public class UserController {
             mView.addObject("msg", "No products are available");
         } else {
             mView.addObject("products", products);
+        }
+        return mView;
+    }
+
+    @GetMapping("rag")
+    public ModelAndView getRag(@RequestParam("searchQuery") String searchQuery, @RequestParam("ragQuery") String ragQuery) {
+        ModelAndView mView = new ModelAndView("rag");
+        List<Product> products;
+        String generativeResult = "";
+
+        if (!searchQuery.isEmpty()) {
+            System.out.println("searchQuery: " + searchQuery);
+
+            Result<GraphQLResponse> results = WeaviateService.getInstance().generativeSearch("Products", searchQuery, ragQuery);
+            System.out.println("Raw response: " + results);
+
+            generativeResult = productService.getRagGroupedFromResult(results);
+            System.out.println("generativeResult: " + generativeResult);
+
+            products = productService.getProductsFromResult(results);
+            for (Product product : products) {
+                System.out.println(product.getName() + " - " + product.getDescription());
+            }
+        } else {
+            products = this.productService.getProducts();
+        }
+
+        if (products.isEmpty() || generativeResult.isEmpty()) {
+            mView.addObject("msg", "No products are available");
+        } else {
+            mView.addObject("products", products);
+            mView.addObject("generativeGroupedResult", generativeResult);
         }
         return mView;
     }

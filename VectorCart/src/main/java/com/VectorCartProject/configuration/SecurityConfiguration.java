@@ -29,7 +29,7 @@ public class SecurityConfiguration {
         @Bean
         SecurityFilterChain userFilterChain(HttpSecurity http) throws Exception {
             http.authorizeHttpRequests(requests -> requests
-                            .antMatchers("/login", "/register", "/registerUser", "/search").permitAll()
+                            .antMatchers("/login", "/register", "/registerUser", "/search", "/rag").permitAll()
                             .antMatchers("/**").hasRole("USER"))
                     .formLogin(login -> login
                             .loginPage("/login")

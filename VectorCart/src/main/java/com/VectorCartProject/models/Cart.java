@@ -3,7 +3,7 @@ package com.VectorCartProject.models;
 import javax.persistence.*;
 
 
-@Entity(name="CART")
+@Entity(name = "CART")
 public class Cart {
 
     @Id
@@ -11,16 +11,8 @@ public class Cart {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="customer_id")
+    @JoinColumn(name = "customer_id")
     private User customer;
-
-//    @ManyToMany
-//    @JoinTable(
-//            joinColumns = @JoinColumn(name = "cart_id"),
-//            inverseJoinColumns = @JoinColumn(name = "product_id")
-//    )
-//    private List<Product> products;
-
 
     public Cart() {
     }

@@ -7,8 +7,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
 public class VectorCartApplication {
 
-	public static void main(String[] args) {
-
-		SpringApplication.run(VectorCartApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(VectorCartApplication.class, args);
+    }
 }
