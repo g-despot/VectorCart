@@ -2,14 +2,7 @@ package com.VectorCartProject;
 
 import com.VectorCartProject.models.Product;
 import com.VectorCartProject.services.productService;
-import com.VectorCartProject.services.userService;
-import com.google.gson.GsonBuilder;
 import io.weaviate.client.v1.data.model.WeaviateObject;
-import io.weaviate.client.v1.graphql.model.GraphQLResponse;
-import io.weaviate.client.v1.graphql.query.argument.NearTextArgument;
-import io.weaviate.client.v1.graphql.query.builder.GetBuilder;
-import io.weaviate.client.v1.graphql.query.fields.Field;
-import io.weaviate.client.v1.graphql.query.fields.Fields;
 import io.weaviate.client.v1.schema.model.DataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,9 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import io.weaviate.client.Config;
 import io.weaviate.client.WeaviateClient;
 import io.weaviate.client.v1.schema.model.WeaviateClass;
 import io.weaviate.client.v1.schema.model.Property;
@@ -36,12 +27,11 @@ public class WeaviateConfiguration implements CommandLineRunner {
     private final WeaviateClient client;
     private final String className = "Products";
 
-
     @Autowired
     public WeaviateConfiguration() {
         this.productService = new productService();
 
-        client = WeaviateSingleton.getInstance().getClient();
+        client = WeaviateHelper.getInstance().getClient();
 
         Result<Meta> meta = client.misc().metaGetter().run();
         if (meta.getError() == null) {
@@ -55,12 +45,24 @@ public class WeaviateConfiguration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        //this.deleteCollection();
         //this.createCollection();
         //this.populateWeaviate();
     }
 
-    public boolean createCollection() {
+    public void deleteCollection(){
+        Result<Boolean> result = client.schema().classDeleter()
+                .withClassName(className)
+                .run();
+    }
 
+    public void createCollection() {
+
+        Property idProperty = Property.builder()
+                .name("productId")
+                .description("ID of the product")
+                .dataType(Arrays.asList(DataType.NUMBER))
+                .build();
         Property nameProperty = Property.builder()
                 .name("name")
                 .description("Name of the product")
@@ -74,17 +76,16 @@ public class WeaviateConfiguration implements CommandLineRunner {
 
         WeaviateClass emptyClass = WeaviateClass.builder()
                 .className(className)
-                .properties(Arrays.asList(nameProperty, descriptionProperty))
+                .properties(Arrays.asList(idProperty, nameProperty, descriptionProperty))
                 .vectorizer("text2vec-openai")
                 .build();
 
         Result<Boolean> result = client.schema().classCreator()
                 .withClass(emptyClass)
                 .run();
-        return true;
     }
 
-    public boolean populateWeaviate() {
+    public void populateWeaviate() {
         List<Product> products = this.productService.getProducts();
         List<Result<WeaviateObject>> results = new ArrayList<>();
         for (Product product : products) {
@@ -92,6 +93,7 @@ public class WeaviateConfiguration implements CommandLineRunner {
             results.add(client.data().creator()
                     .withClassName(className)
                     .withProperties(new HashMap<String, Object>() {{
+                        put("productId", product.getId());
                         put("name", product.getName());
                         put("description", product.getDescription());
                     }})
@@ -101,9 +103,5 @@ public class WeaviateConfiguration implements CommandLineRunner {
             String json = new GsonBuilder().setPrettyPrinting().create().toJson(result.getResult());
             System.out.println(json);
         }*/
-        return true;
     }
-
-
-
 }

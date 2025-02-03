@@ -1,11 +1,9 @@
 package com.VectorCartProject.controller;
 
-import com.VectorCartProject.WeaviateConfiguration;
-import com.VectorCartProject.WeaviateSingleton;
+import com.VectorCartProject.WeaviateHelper;
 import com.VectorCartProject.models.Product;
 import com.VectorCartProject.models.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,10 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.VectorCartProject.services.userService;
 import com.VectorCartProject.services.productService;
 
-import io.weaviate.client.Config;
 import io.weaviate.client.WeaviateClient;
 import io.weaviate.client.base.Result;
-import io.weaviate.client.v1.misc.model.Meta;
 
 @Controller
 public class UserController {
@@ -43,13 +39,8 @@ public class UserController {
         return "register";
     }
 
-    @GetMapping("/buy")
-    public String buy() {
-        return "buy";
-    }
-
     @GetMapping("/login")
-    public ModelAndView userlogin(@RequestParam(required = false) String error) {
+    public ModelAndView userLogin(@RequestParam(required = false) String error) {
         ModelAndView mv = new ModelAndView("userLogin");
         if ("true".equals(error)) {
             mv.addObject("msg", "Please enter correct email and password");
@@ -72,24 +63,8 @@ public class UserController {
         return mView;
     }
 
-    @GetMapping("/user/products")
-    public ModelAndView getproduct() {
-
-        ModelAndView mView = new ModelAndView("uproduct");
-
-        List<Product> products = this.productService.getProducts();
-
-        if (products.isEmpty()) {
-            mView.addObject("msg", "No products are available");
-        } else {
-            mView.addObject("products", products);
-        }
-
-        return mView;
-    }
-
-    @RequestMapping(value = "newuserregister", method = RequestMethod.POST)
-    public ModelAndView newUseRegister(@ModelAttribute User user) {
+    @RequestMapping(value = "registerUser", method = RequestMethod.POST)
+    public ModelAndView registerUser(@ModelAttribute User user) {
         // Check if username already exists in database
         boolean exists = this.userService.checkUserExists(user.getUsername());
 
@@ -127,62 +102,22 @@ public class UserController {
         return "updateProfile";
     }
 
-
-    //for Learning purpose of model
-    @GetMapping("/test")
-    public String Test(Model model) {
-        Config config = new Config("http", "localhost:8080");
-        WeaviateClient client = new WeaviateClient(config);
-        Result<Meta> meta = client.misc().metaGetter().run();
-        if (meta.getError() == null) {
-            System.out.printf("meta.hostname: %s\n", meta.getResult().getHostname());
-            System.out.printf("meta.version: %s\n", meta.getResult().getVersion());
-            System.out.printf("meta.modules: %s\n", meta.getResult().getModules());
-        } else {
-            System.out.printf("Error: %s\n", meta.getError().getMessages());
-        }
-
-        System.out.println("test page");
-        model.addAttribute("author", "jay gajera");
-        model.addAttribute("id", 40);
-
-        List<String> friends = new ArrayList<String>();
-        model.addAttribute("f", friends);
-        friends.add("xyz");
-        friends.add("abc");
-
-        return "test";
-    }
-
-    // for learning purpose of model and view ( how data is pass to view)
-
-    @GetMapping("/test2")
-    public ModelAndView Test2() {
-        System.out.println("test page");
-        //create modelandview object
-        ModelAndView mv = new ModelAndView();
-        mv.addObject("name", "jay gajera 17");
-        mv.addObject("id", 40);
-        mv.setViewName("test2");
-
-        List<Integer> list = new ArrayList<Integer>();
-        list.add(10);
-        list.add(25);
-        mv.addObject("marks", list);
-        return mv;
-    }
-
     @GetMapping("search")
     public ModelAndView getSearchWithQuery(@RequestParam("searchQuery") String searchQuery) {
         ModelAndView mView = new ModelAndView("search");
-        if(!searchQuery.isEmpty()) {
-            System.out.println("searchQuery: " + searchQuery);
-            WeaviateClient client = WeaviateSingleton.getInstance().getClient();
+        List<Product> products;
 
-            Result<GraphQLResponse> results = WeaviateSingleton.getInstance().nearTextSearch("Products", searchQuery);
-            System.out.println(results);
+        if (!searchQuery.isEmpty()) {
+            System.out.println("searchQuery: " + searchQuery);
+            Result<GraphQLResponse> results = WeaviateHelper.getInstance().nearTextSearch("Products", searchQuery);
+            products = productService.parseGraphQLResponse(results);
+
+            for (Product product : products) {
+                System.out.println(product.getName() + " - " + product.getDescription());
+            }
+        } else {
+            products = this.productService.getProducts();
         }
-        List<Product> products = this.productService.getProducts();
 
         if (products.isEmpty()) {
             mView.addObject("msg", "No products are available");

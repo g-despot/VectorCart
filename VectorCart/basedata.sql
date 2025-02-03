@@ -35,7 +35,7 @@ UNIQUE (username)
 );
 
 INSERT INTO USER(name, address, email, password, role, username) VALUES
-                                                                   ('John Doe', '66 Sycamore Drive, Staten Island, New York 10314', 'john@doe.com', 'john', 'ROLE_ADMIN', 'john'),
+                                                                   ('John Doe', '66 Sycamore Drive, Staten Island, New York 10314', 'john@doe.com', 'john', 'ROLE_NORMAL', 'john'),
                                                                    ('Jane Doe', '3865 Crowfield Road, Phoenix, Arizona 85003', 'anna@doe.com', 'jane', 'ROLE_NORMAL', 'jane');
 
 CREATE TABLE IF NOT EXISTS PRODUCT(
