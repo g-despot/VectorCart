@@ -102,11 +102,11 @@ public class UserController {
     }
 
     @GetMapping("search")
-    public ModelAndView getSearchWithQuery(@RequestParam("searchQuery") String searchQuery) {
+    public ModelAndView getSearchWithQuery(@RequestParam(value = "searchQuery", required = false) String searchQuery) {
         ModelAndView mView = new ModelAndView("search");
         List<Product> products;
 
-        if (!searchQuery.isEmpty()) {
+        if (searchQuery != null && !searchQuery.isEmpty()) {
             System.out.println("searchQuery: " + searchQuery);
             Result<GraphQLResponse> results = WeaviateService.getInstance().nearTextSearch("Products", searchQuery);
             System.out.println("Raw response: " + results);
@@ -128,15 +128,17 @@ public class UserController {
     }
 
     @GetMapping("rag")
-    public ModelAndView getRag(@RequestParam("searchQuery") String searchQuery, @RequestParam("ragQuery") String ragQuery) {
+    public ModelAndView getRag(@RequestParam(value = "searchQuery", required = false) String searchQuery,
+                               @RequestParam(value = "ragQuery", required = false) String ragQuery) {
         ModelAndView mView = new ModelAndView("rag");
         List<Product> products;
         String generativeResult = "";
 
-        if (!searchQuery.isEmpty()) {
+        if (searchQuery != null && !searchQuery.isEmpty()) {
             System.out.println("searchQuery: " + searchQuery);
 
-            Result<GraphQLResponse> results = WeaviateService.getInstance().generativeSearch("Products", searchQuery, ragQuery);
+            Result<GraphQLResponse> results = WeaviateService.getInstance().generativeSearch("Products", searchQuery,
+                    ragQuery);
             System.out.println("Raw response: " + results);
 
             generativeResult = productService.getRagGroupedFromResult(results);
