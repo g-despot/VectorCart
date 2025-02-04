@@ -6,7 +6,7 @@
 <%-- Set Page Title --%>
 <c:set var="pageTitle" value="Search Products" />
 
-<jsp:include page="header.jsp"/>
+<jsp:include page="includes/header.jsp"/>
 
 <!-- Search Form -->
 <div class="container mt-4">
@@ -55,4 +55,4 @@
     </table>
 </div>
 
-<jsp:include page="footer.jsp"/>
+<jsp:include page="includes/footer.jsp"/>

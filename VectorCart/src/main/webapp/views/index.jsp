@@ -6,7 +6,7 @@
 <%-- Set Page Title --%>
 <c:set var="pageTitle" value="Homepage" />
 
-<jsp:include page="header.jsp"/>
+<jsp:include page="includes/header.jsp"/>
 
 <!-- Main Content -->
 <div class="container mt-4">
@@ -29,4 +29,4 @@
     </div>
 </div>
 
-<jsp:include page="footer.jsp"/>
+<jsp:include page="includes/footer.jsp"/>

@@ -1,6 +1,11 @@
+.card {
+    margin: 8px; /* Adds a small margin around the card */
+}
+
 .card-body {
     height: 250px; /* Fixed height for card body */
 }
+
 .card-img-top {
     max-height: 100px; /* Limit height of product image */
     object-fit: contain;

@@ -82,8 +82,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/profileDisplay")
-    public String profileDisplay(Model model, HttpServletRequest request) {
+    @GetMapping("/profile")
+    public String getProfile(Model model, HttpServletRequest request) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByUsername(username);

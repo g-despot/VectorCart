@@ -26,8 +26,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="Dashboard">Home Page</a></li>
-                    <li class="nav-item"><a class="nav-link" href="profileDisplay">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/">Home Page</a></li>
+                    <li class="nav-item"><a class="nav-link" href="search">Vector search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="rag">RAG</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" href="logout">Logout</a></li>
                 </ul>
             </div>
