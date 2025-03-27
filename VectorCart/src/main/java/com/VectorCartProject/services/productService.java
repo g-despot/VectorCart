@@ -22,6 +22,11 @@ public class productService {
     @Autowired
     private categoryDao categoryDao;
 
+    @Autowired
+    public productService(productDao productDao) {
+        this.productDao = productDao;
+    }
+
     public List<Product> getProducts() {
         return this.productDao.getProducts();
     }

@@ -1,13 +1,14 @@
 package com.VectorCartProject.controller;
 
-import com.VectorCartProject.services.WeaviateService;
 import com.VectorCartProject.models.Product;
 import com.VectorCartProject.models.User;
 
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
+import com.VectorCartProject.services.weaviate.WeaviateService;
+import com.VectorCartProject.services.weaviate.WeaviateServiceFactory;
+import com.VectorCartProject.services.weaviate.WeaviateServiceFactory.ClientVersion;
 import io.weaviate.client.v1.graphql.model.GraphQLResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,11 +27,15 @@ public class UserController {
 
     private final userService userService;
     private final productService productService;
+    private final WeaviateService weaviateV5Service;
+    private final WeaviateService weaviateV6Service;
 
     @Autowired
     public UserController(userService userService, productService productService) {
         this.userService = userService;
         this.productService = productService;
+        this.weaviateV5Service = WeaviateServiceFactory.getService(ClientVersion.V5);
+        this.weaviateV6Service = WeaviateServiceFactory.getService(ClientVersion.V6);
     }
 
     @GetMapping("/register")
@@ -108,7 +113,7 @@ public class UserController {
 
         if (searchQuery != null && !searchQuery.isEmpty()) {
             System.out.println("searchQuery: " + searchQuery);
-            Result<GraphQLResponse> results = WeaviateService.getInstance().nearTextSearch("Products", searchQuery);
+            Result<GraphQLResponse> results = (Result<GraphQLResponse>) weaviateV5Service.nearTextSearch("Products", searchQuery);
             System.out.println("Raw response: " + results);
             products = productService.getProductsFromResult(results);
 
@@ -137,7 +142,7 @@ public class UserController {
         if (searchQuery != null && !searchQuery.isEmpty()) {
             System.out.println("searchQuery: " + searchQuery);
 
-            Result<GraphQLResponse> results = WeaviateService.getInstance().generativeSearch("Products", searchQuery,
+            Result<GraphQLResponse> results = (Result<GraphQLResponse>) weaviateV5Service.generativeSearch("Products", searchQuery,
                     ragQuery);
             System.out.println("Raw response: " + results);
 
